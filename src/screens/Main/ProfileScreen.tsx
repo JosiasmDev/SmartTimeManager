@@ -5,11 +5,13 @@
 
 import React from 'react';
 import {View, Text, StyleSheet, Alert} from 'react-native';
+import auth from '@react-native-firebase/auth';
 import Colors from '../../utils/colors';
 import CustomButton from '../../components/CustomButton';
 import {useAuth} from '../../store/AuthContext';
 
 const ProfileScreen: React.FC = () => {
+  const email = auth().currentUser?.email ?? 'Sin email';
   const {user, signOut} = useAuth();
 
   const handleSignOut = () => {
@@ -39,7 +41,7 @@ const ProfileScreen: React.FC = () => {
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>
-            {user?.email?.charAt(0).toUpperCase() || '?'}
+            {email !== 'Sin email' ? email.charAt(0).toUpperCase() : '?'}
           </Text>
         </View>
       </View>
@@ -47,9 +49,11 @@ const ProfileScreen: React.FC = () => {
       {/* Info del usuario */}
       <View style={styles.infoSection}>
         <Text style={styles.userName}>
-          {user?.email?.split('@')[0] || 'Usuario'}
+          {email !== 'Sin email' ? email.split('@')[0] : 'Usuario'}
         </Text>
-        <Text style={styles.userEmail}>{user?.email || 'Sin email'}</Text>
+        <Text style={styles.userEmail} numberOfLines={2}>
+          {email}
+        </Text>
       </View>
 
       {/* Tarjeta de info */}
@@ -85,7 +89,7 @@ const ProfileScreen: React.FC = () => {
       {/* Botón cerrar sesión */}
       <View style={styles.actions}>
         <CustomButton
-          title="Cerrar Sesión"
+          title="Cerrar sesión"
           onPress={handleSignOut}
           variant="danger"
           size="large"
@@ -127,11 +131,14 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   userEmail: {
-    fontSize: 14,
-    color: Colors.textSecondary,
+    fontSize: 28,
+    fontWeight: '800',
+    color: Colors.text,
+    letterSpacing: 0.2,
+    textAlign: 'center',
   },
   card: {
     backgroundColor: Colors.card,
