@@ -9,6 +9,7 @@ import {StatusBar} from 'react-native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {AuthProvider} from './store/AuthContext';
 import AppNavigator from './navigation/AppNavigator';
+import './services/firebaseConfig';
 
 const App: React.FC = () => {
   return (

@@ -6,6 +6,11 @@
 
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import {
+  logLogin,
+  logSignUp,
+  setAnalyticsUserId,
+} from '../services/analyticsService';
 
 interface AuthContextType {
   user: FirebaseAuthTypes.User | null;
@@ -45,6 +50,7 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     // Escuchar cambios en el estado de autenticación
     const unsubscribe = auth().onAuthStateChanged(firebaseUser => {
       setUser(firebaseUser);
+      void setAnalyticsUserId(firebaseUser?.uid ?? null);
       setLoading(false);
     });
 
@@ -54,14 +60,17 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
 
   const handleSignIn = async (email: string, password: string) => {
     await auth().signInWithEmailAndPassword(email, password);
+    void logLogin('email');
   };
 
   const handleSignUp = async (email: string, password: string) => {
     await auth().createUserWithEmailAndPassword(email, password);
+    void logSignUp('email');
   };
 
   const handleSignOut = async () => {
     await auth().signOut();
+    void setAnalyticsUserId(null);
   };
 
   return (

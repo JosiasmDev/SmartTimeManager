@@ -6,6 +6,7 @@
 import firestore from '@react-native-firebase/firestore';
 import {FIREBASE_COLLECTIONS} from './firebase';
 import {Task, TaskData} from '../utils/priorities';
+import {logEvent} from './analyticsService';
 
 /**
  * Añadir una nueva tarea a Firestore
@@ -29,6 +30,12 @@ export async function addTask(
       createdAt: firestore.FieldValue.serverTimestamp(),
       updatedAt: firestore.FieldValue.serverTimestamp(),
     });
+
+  void logEvent('task_created', {
+    userId,
+    priority: taskData.priority,
+    status: taskData.status,
+  });
 
   return docRef.id;
 }
@@ -104,6 +111,13 @@ export async function updateTask(
     .collection(FIREBASE_COLLECTIONS.TASKS)
     .doc(taskId)
     .update(updateData);
+
+  void logEvent('task_updated', {
+    userId,
+    taskId,
+    priority: data.priority,
+    status: data.status,
+  });
 }
 
 /**
@@ -122,4 +136,6 @@ export async function deleteTask(
     .collection(FIREBASE_COLLECTIONS.TASKS)
     .doc(taskId)
     .delete();
+
+  void logEvent('task_deleted', {userId, taskId});
 }

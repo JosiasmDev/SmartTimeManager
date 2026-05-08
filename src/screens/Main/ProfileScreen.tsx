@@ -24,7 +24,7 @@ const ProfileScreen: React.FC = () => {
           onPress: async () => {
             try {
               await signOut();
-            } catch (error) {
+            } catch {
               Alert.alert('Error', 'No se pudo cerrar sesión');
             }
           },

@@ -16,6 +16,7 @@
 // Solo necesitas importar los módulos que necesites:
 // import auth from '@react-native-firebase/auth';
 // import firestore from '@react-native-firebase/firestore';
+// import analytics from '@react-native-firebase/analytics';
 
 export const FIREBASE_COLLECTIONS = {
   USERS: 'users',
