@@ -1,5 +1,5 @@
 /**
- * LoginScreen - Pantalla de inicio de sesión
+ * LoginScreen - Pantalla de inicio de sesión (solo UI)
  * Formulario con email y contraseña, enlace a registro
  */
 
@@ -12,12 +12,10 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import {useAuth} from '../../store/AuthContext';
 
 interface LoginScreenProps {
   navigation: any;
@@ -26,53 +24,6 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{email?: string; password?: string}>({});
-  const {signIn} = useAuth();
-
-  const validate = (): boolean => {
-    const newErrors: {email?: string; password?: string} = {};
-
-    if (!email.trim()) {
-      newErrors.email = 'El email es obligatorio';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email no válido';
-    }
-
-    if (!password) {
-      newErrors.password = 'La contraseña es obligatoria';
-    } else if (password.length < 6) {
-      newErrors.password = 'Mínimo 6 caracteres';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleLogin = async () => {
-    if (!validate()) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signIn(email.trim(), password);
-    } catch (error: any) {
-      let message = 'Error al iniciar sesión';
-      if (error.code === 'auth/user-not-found') {
-        message = 'No existe una cuenta con este email';
-      } else if (error.code === 'auth/wrong-password') {
-        message = 'Contraseña incorrecta';
-      } else if (error.code === 'auth/invalid-email') {
-        message = 'Email no válido';
-      } else if (error.code === 'auth/too-many-requests') {
-        message = 'Demasiados intentos. Intenta más tarde';
-      }
-      Alert.alert('Error', message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -100,7 +51,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            error={errors.email}
           />
 
           <CustomInput
@@ -109,13 +59,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            error={errors.password}
           />
 
           <CustomButton
-            title="Iniciar Sesión"
-            onPress={handleLogin}
-            loading={loading}
+            title="Entrar"
+            onPress={() => {}}
             size="large"
             style={styles.loginButton}
           />

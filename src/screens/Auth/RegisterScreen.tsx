@@ -1,6 +1,6 @@
 /**
- * RegisterScreen - Pantalla de registro de usuario
- * Formulario con email, contraseña y confirmación
+ * RegisterScreen - Pantalla de registro (solo UI)
+ * Formulario con nombre, email y contraseña
  */
 
 import React, {useState} from 'react';
@@ -12,81 +12,19 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import {useAuth} from '../../store/AuthContext';
 
 interface RegisterScreenProps {
   navigation: any;
 }
 
 const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{
-    email?: string;
-    password?: string;
-    confirmPassword?: string;
-  }>({});
-  const {signUp} = useAuth();
-
-  const validate = (): boolean => {
-    const newErrors: {
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
-    } = {};
-
-    if (!email.trim()) {
-      newErrors.email = 'El email es obligatorio';
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Email no válido';
-    }
-
-    if (!password) {
-      newErrors.password = 'La contraseña es obligatoria';
-    } else if (password.length < 6) {
-      newErrors.password = 'Mínimo 6 caracteres';
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = 'Confirma tu contraseña';
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleRegister = async () => {
-    if (!validate()) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signUp(email.trim(), password);
-      // onAuthStateChanged se encargará de navegar automáticamente
-    } catch (error: any) {
-      let message = 'Error al crear la cuenta';
-      if (error.code === 'auth/email-already-in-use') {
-        message = 'Ya existe una cuenta con este email';
-      } else if (error.code === 'auth/invalid-email') {
-        message = 'Email no válido';
-      } else if (error.code === 'auth/weak-password') {
-        message = 'La contraseña es demasiado débil';
-      }
-      Alert.alert('Error', message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -106,13 +44,20 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
         {/* Formulario */}
         <View style={styles.form}>
           <CustomInput
+            label="Nombre"
+            placeholder="Tu nombre"
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+          />
+
+          <CustomInput
             label="Email"
             placeholder="tu@email.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            error={errors.email}
           />
 
           <CustomInput
@@ -121,22 +66,11 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            error={errors.password}
-          />
-
-          <CustomInput
-            label="Confirmar Contraseña"
-            placeholder="Repite tu contraseña"
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-            error={errors.confirmPassword}
           />
 
           <CustomButton
-            title="Crear Cuenta"
-            onPress={handleRegister}
-            loading={loading}
+            title="Registrarme"
+            onPress={() => {}}
             size="large"
             style={styles.registerButton}
           />
@@ -145,7 +79,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
         {/* Link a login */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>¿Ya tienes cuenta? </Text>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Text style={styles.footerLink}>Inicia Sesión</Text>
           </TouchableOpacity>
         </View>
