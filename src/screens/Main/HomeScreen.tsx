@@ -12,10 +12,11 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import Colors from '../../utils/colors';
 import {useAuth} from '../../store/AuthContext';
-import {subscribeToTasks} from '../../services/taskService';
+import {subscribeToTasks, updateTaskStatus, deleteTask} from '../../services/taskService';
 import {Task, sortTasks, Priority, TaskStatus} from '../../utils/priorities';
 import TaskCard from '../../components/TaskCard';
 
@@ -108,6 +109,43 @@ const HomeScreen: React.FC = () => {
     console.log('Tarea seleccionada:', task.title);
   };
 
+  const handleCompleteTask = async (task: Task) => {
+    if (!user?.uid) return;
+    try {
+      const newStatus =
+        task.status === TaskStatus.COMPLETED
+          ? TaskStatus.PENDING
+          : TaskStatus.COMPLETED;
+      await updateTaskStatus(user.uid, task.id, newStatus);
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      Alert.alert('Error', 'No se pudo actualizar la tarea');
+    }
+  };
+
+  const handleDeleteTask = (task: Task) => {
+    Alert.alert(
+      'Borrar tarea',
+      `¿Estás seguro de que quieres borrar "${task.title}"?`,
+      [
+        {text: 'Cancelar', style: 'cancel'},
+        {
+          text: 'Borrar',
+          style: 'destructive',
+          onPress: async () => {
+            if (!user?.uid) return;
+            try {
+              await deleteTask(user.uid, task.id);
+            } catch (error) {
+              console.error('Error deleting task:', error);
+              Alert.alert('Error', 'No se pudo borrar la tarea');
+            }
+          },
+        },
+      ],
+    );
+  };
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -150,7 +188,12 @@ const HomeScreen: React.FC = () => {
           data={tasks}
           keyExtractor={item => item.id}
           renderItem={({item}) => (
-            <TaskCard task={item} onPress={handleTaskPress} />
+            <TaskCard
+              task={item}
+              onPress={handleTaskPress}
+              onComplete={handleCompleteTask}
+              onDelete={handleDeleteTask}
+            />
           )}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
