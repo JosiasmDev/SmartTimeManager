@@ -1,9 +1,10 @@
 /**
- * RegisterScreen - Pantalla de registro (solo UI)
+ * RegisterScreen - Pantalla de registro
  * Formulario con nombre, email y contraseña
+ * Conectado con AuthContext → Firebase Auth
  */
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -12,19 +13,58 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
+import { useAuth } from '../../store/AuthContext';
 
 interface RegisterScreenProps {
   navigation: any;
 }
 
-const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
+const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
+  const { signUp } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleRegister = async () => {
+    setError('');
+    if (!name.trim()) {
+      setError('Por favor, introduce tu nombre.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Por favor, introduce tu email.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    try {
+      setLoading(true);
+      await signUp(email.trim(), password);
+      // AuthContext redirige automáticamente al detectar usuario logueado
+    } catch (e: any) {
+      const code = e?.code ?? '';
+      if (code === 'auth/email-already-in-use') {
+        setError('Este email ya está registrado. Prueba a iniciar sesión.');
+      } else if (code === 'auth/invalid-email') {
+        setError('El formato del email no es válido.');
+      } else if (code === 'auth/weak-password') {
+        setError('La contraseña es demasiado débil.');
+      } else {
+        setError('Error al registrarse. Inténtalo de nuevo.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -68,9 +108,13 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({navigation}) => {
             secureTextEntry
           />
 
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
+
           <CustomButton
-            title="Registrarme"
-            onPress={() => {}}
+            title={loading ? 'Creando cuenta...' : 'Registrarme'}
+            onPress={handleRegister}
             size="large"
             style={styles.registerButton}
           />
@@ -117,6 +161,13 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 8,
   },
   registerButton: {
     marginTop: 8,

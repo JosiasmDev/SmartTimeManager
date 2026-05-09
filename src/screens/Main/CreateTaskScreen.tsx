@@ -64,6 +64,14 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const resetForm = () => {
+    setTitle('');
+    setDescription('');
+    setPriority(Priority.MEDIUM);
+    setDeadline(new Date());
+    setErrors({});
+  };
+
   /**
    * Guardar tarea en Firestore
    * Usa addTask del taskService y navega de vuelta al inicio
@@ -93,7 +101,10 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
       Alert.alert('✅ Éxito', 'Tarea guardada correctamente', [
         {
           text: 'OK',
-          onPress: () => navigation.navigate('Home'),
+          onPress: () => {
+            resetForm();
+            navigation.navigate('Home');
+          },
         },
       ]);
     } catch (error) {
