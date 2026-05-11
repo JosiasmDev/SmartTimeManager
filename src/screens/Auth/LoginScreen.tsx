@@ -3,6 +3,7 @@
  * Formulario con email y contraseña, enlace a registro
  */
 
+
 import React, {useState} from 'react';
 import {
   View,
@@ -13,9 +14,13 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+
+import auth from '@react-native-firebase/auth';
+
 import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
+import FullScreenLoader from '../../components/FullScreenLoader';
 
 interface LoginScreenProps {
   navigation: any;
@@ -24,6 +29,23 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setIsLoading(true);
+
+    try {
+      await auth().signInWithEmailAndPassword(email, password);
+    } catch (error) {
+      console.log('Error login:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -32,6 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled">
+
         {/* Header / Logo */}
         <View style={styles.header}>
           <Text style={styles.logoEmoji}>⏱️</Text>
@@ -62,8 +85,8 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           />
 
           <CustomButton
-            title="Entrar"
-            onPress={() => {}}
+            title={isLoading ? "Entrando..." : "Entrar"}
+            onPress={handleLogin}
             size="large"
             style={styles.loginButton}
           />
@@ -76,6 +99,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             <Text style={styles.footerLink}>Regístrate</Text>
           </TouchableOpacity>
         </View>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );

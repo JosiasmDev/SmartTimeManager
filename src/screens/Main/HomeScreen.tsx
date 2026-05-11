@@ -18,6 +18,13 @@ import {useAuth} from '../../store/AuthContext';
 import {subscribeToTasks} from '../../services/taskService';
 import {Task, sortTasks, Priority, TaskStatus} from '../../utils/priorities';
 import TaskCard from '../../components/TaskCard';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  CreateTask: {taskToEdit?: Task};
+  Home: undefined;
+};
 
 const HomeScreen: React.FC = () => {
   const {user} = useAuth();
@@ -25,87 +32,72 @@ const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleTaskPress = (task: Task) => {
+    navigation.navigate('CreateTask', {
+      taskToEdit: task,
+    });
+  };
+
   useEffect(() => {
     if (!user?.uid) {
       setLoading(false);
       return;
     }
 
-    // Suscribirse a tareas en tiempo real con onSnapshot
     const unsubscribe = subscribeToTasks(user.uid, updatedTasks => {
       setTasks(sortTasks(updatedTasks));
       setLoading(false);
       setRefreshing(false);
     });
 
-    // Limpiar suscripción al desmontar el componente
     return () => unsubscribe();
   }, [user?.uid]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    // La suscripción en tiempo real se encarga de actualizar automáticamente
-    // El refreshing se reseteará cuando lleguen datos nuevos
     setTimeout(() => setRefreshing(false), 1500);
   };
 
-  /**
-   * Barra de estado superior con colores según tareas activas
-   * Muestra la proporción de tareas por prioridad
-   */
   const getStatusBarColor = (): string => {
-    if (tasks.length === 0) {
-      return Colors.rest;
-    }
+    if (tasks.length === 0) return Colors.rest;
 
     const pendingTasks = tasks.filter(t => t.status !== TaskStatus.COMPLETED);
-    if (pendingTasks.length === 0) {
-      return Colors.completed;
-    }
+    if (pendingTasks.length === 0) return Colors.completed;
 
     const hasUrgent = pendingTasks.some(t => t.priority === Priority.URGENT);
-    if (hasUrgent) {
-      return Colors.urgent;
-    }
+    if (hasUrgent) return Colors.urgent;
 
     const hasInProgress = pendingTasks.some(
       t => t.status === TaskStatus.IN_PROGRESS,
     );
-    if (hasInProgress) {
-      return Colors.inProgress;
-    }
+    if (hasInProgress) return Colors.inProgress;
 
     return Colors.medium;
   };
 
   const getStatusMessage = (): string => {
-    if (tasks.length === 0) {
-      return '🌟 Sin tareas pendientes';
-    }
+    if (tasks.length === 0) return '🌟 Sin tareas pendientes';
 
-    const pending = tasks.filter(t => t.status !== TaskStatus.COMPLETED).length;
+    const pending = tasks.filter(
+      t => t.status !== TaskStatus.COMPLETED,
+    ).length;
+
     const completed = tasks.filter(
       t => t.status === TaskStatus.COMPLETED,
     ).length;
 
-    if (pending === 0) {
-      return '🎉 ¡Todas las tareas completadas!';
-    }
+    if (pending === 0) return '🎉 ¡Todas las tareas completadas!';
 
     const hasUrgent = tasks.some(
-      t =>
-        t.priority === Priority.URGENT && t.status !== TaskStatus.COMPLETED,
+      t => t.priority === Priority.URGENT && t.status !== TaskStatus.COMPLETED,
     );
-    if (hasUrgent) {
-      return '🔴 Tienes tareas urgentes';
-    }
+
+    if (hasUrgent) return '🔴 Tienes tareas urgentes';
 
     return `📋 ${pending} pendiente${pending > 1 ? 's' : ''} · ${completed} completada${completed > 1 ? 's' : ''}`;
-  };
-
-  const handleTaskPress = (task: Task) => {
-    // Por ahora solo log, se puede implementar navegación a detalle
-    console.log('Tarea seleccionada:', task.title);
   };
 
   if (loading) {
@@ -119,12 +111,10 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Barra de estado con color dinámico */}
       <View style={[styles.statusBar, {backgroundColor: getStatusBarColor()}]}>
         <Text style={styles.statusText}>{getStatusMessage()}</Text>
       </View>
 
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.greeting}>
           Hola{user?.email ? `, ${user.email.split('@')[0]}` : ''} 👋
@@ -136,7 +126,6 @@ const HomeScreen: React.FC = () => {
         </Text>
       </View>
 
-      {/* Lista de tareas */}
       {tasks.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyEmoji}>📝</Text>
@@ -169,10 +158,7 @@ const HomeScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
+  container: {flex: 1, backgroundColor: Colors.background},
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -193,7 +179,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontSize: 13,
     fontWeight: '600',
-    letterSpacing: 0.3,
   },
   header: {
     paddingHorizontal: 20,
@@ -204,7 +189,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
     color: Colors.text,
-    marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
@@ -218,24 +202,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
   },
-  emptyEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
+  emptyEmoji: {fontSize: 64, marginBottom: 16},
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: Colors.text,
-    marginBottom: 8,
-    textAlign: 'center',
   },
   emptySubtitle: {
     fontSize: 14,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 20,
   },
 });
 

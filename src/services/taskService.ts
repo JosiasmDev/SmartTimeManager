@@ -9,12 +9,27 @@ import {Task, TaskData} from '../utils/priorities';
 import {logEvent} from './analyticsService';
 
 /**
+ * ACTUALIZAR DETALLES DE UNA TAREA (CORREGIDO)
+ */
+export const updateTaskDetails = async (
+  userId: string,
+  taskId: string,
+  data: any,
+) => {
+  await firestore()
+    .collection(FIREBASE_COLLECTIONS.USERS)
+    .doc(userId)
+    .collection(FIREBASE_COLLECTIONS.TASKS)
+    .doc(taskId)
+    .update({
+      ...data,
+      updatedAt: firestore.FieldValue.serverTimestamp(),
+    });
+};
+
+/**
  * Añadir una nueva tarea a Firestore
  * Guarda la tarea dentro de la subcolección tasks del usuario
- *
- * @param userId - UID del usuario logueado
- * @param taskData - Datos de la tarea a guardar
- * @returns ID del documento creado
  */
 export async function addTask(
   userId: string,
@@ -42,11 +57,6 @@ export async function addTask(
 
 /**
  * Suscribirse a las tareas del usuario en tiempo real
- * Usa onSnapshot para escuchar cambios y actualizar automáticamente
- *
- * @param userId - UID del usuario logueado
- * @param callback - Función que recibe el array de tareas actualizado
- * @returns Función para cancelar la suscripción (llamar en cleanup del useEffect)
  */
 export function subscribeToTasks(
   userId: string,
@@ -60,8 +70,10 @@ export function subscribeToTasks(
     .onSnapshot(
       querySnapshot => {
         const tasks: Task[] = [];
+
         querySnapshot.forEach(doc => {
           const data = doc.data();
+
           tasks.push({
             id: doc.id,
             title: data.title,
@@ -73,6 +85,7 @@ export function subscribeToTasks(
             updatedAt: data.updatedAt?.toDate() || new Date(),
           });
         });
+
         callback(tasks);
       },
       error => {
@@ -84,11 +97,7 @@ export function subscribeToTasks(
 }
 
 /**
- * Actualizar una tarea existente
- *
- * @param userId - UID del usuario logueado
- * @param taskId - ID del documento de la tarea
- * @param data - Campos a actualizar
+ * Actualizar una tarea existente (alternativa genérica)
  */
 export async function updateTask(
   userId: string,
@@ -100,7 +109,6 @@ export async function updateTask(
     updatedAt: firestore.FieldValue.serverTimestamp(),
   };
 
-  // Convertir deadline a Timestamp si está presente
   if (data.deadline) {
     updateData.deadline = firestore.Timestamp.fromDate(data.deadline);
   }
@@ -121,10 +129,7 @@ export async function updateTask(
 }
 
 /**
- * Eliminar una tarea
- *
- * @param userId - UID del usuario logueado
- * @param taskId - ID del documento de la tarea a eliminar
+ * Eliminar tarea
  */
 export async function deleteTask(
   userId: string,

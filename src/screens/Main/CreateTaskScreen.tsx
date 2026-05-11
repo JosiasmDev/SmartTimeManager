@@ -21,13 +21,16 @@ import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import {useAuth} from '../../store/AuthContext';
-import {addTask} from '../../services/taskService';
+
+import {addTask, updateTaskDetails} from '../../services/taskService';
 import {
   Priority,
   TaskStatus,
   getPriorityColor,
   getPriorityLabel,
+  Task,
 } from '../../utils/priorities';
+import {useRoute} from '@react-navigation/native';
 
 interface CreateTaskScreenProps {
   navigation: any;
@@ -35,12 +38,22 @@ interface CreateTaskScreenProps {
 
 const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
   const {user} = useAuth();
+  const route = useRoute<any>();
 
-  // Estados del formulario
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
-  const [deadline, setDeadline] = useState(new Date());
+  const taskToEdit: Task | undefined = route.params?.taskToEdit;
+
+  // Estados del formulario (con soporte edición)
+  const [title, setTitle] = useState(taskToEdit?.title || '');
+  const [description, setDescription] = useState(
+    taskToEdit?.description || '',
+  );
+  const [priority, setPriority] = useState<Priority>(
+    taskToEdit?.priority || Priority.MEDIUM,
+  );
+  const [deadline, setDeadline] = useState(
+    taskToEdit?.deadline ? new Date(taskToEdit.deadline) : new Date(),
+  );
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -65,13 +78,10 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
   };
 
   /**
-   * Guardar tarea en Firestore
-   * Usa addTask del taskService y navega de vuelta al inicio
+   * Guardar o actualizar tarea
    */
   const handleSave = async () => {
-    if (!validate()) {
-      return;
-    }
+    if (!validate()) return;
 
     if (!user?.uid) {
       Alert.alert('Error', 'Debes iniciar sesión para guardar tareas');
@@ -79,26 +89,40 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
     }
 
     setLoading(true);
-    try {
-      await addTask(user.uid, {
-        title: title.trim(),
-        description: description.trim(),
-        priority,
-        status: TaskStatus.PENDING,
-        deadline,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
 
-      Alert.alert('✅ Éxito', 'Tarea guardada correctamente', [
-        {
-          text: 'OK',
-          onPress: () => navigation.navigate('Home'),
-        },
-      ]);
+    try {
+      if (taskToEdit) {
+        // 🔄 ACTUALIZAR
+        await updateTaskDetails(taskToEdit.id, {
+          title: title.trim(),
+          description: description.trim(),
+          priority,
+          deadline,
+          updatedAt: new Date(),
+        });
+
+        Alert.alert('✅ Éxito', 'Tarea actualizada correctamente', [
+          {text: 'OK', onPress: () => navigation.navigate('Home')},
+        ]);
+      } else {
+        // ➕ CREAR
+        await addTask(user.uid, {
+          title: title.trim(),
+          description: description.trim(),
+          priority,
+          status: TaskStatus.PENDING,
+          deadline,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        Alert.alert('✅ Éxito', 'Tarea guardada correctamente', [
+          {text: 'OK', onPress: () => navigation.navigate('Home')},
+        ]);
+      }
     } catch (error) {
       console.error('Error guardando tarea:', error);
-      Alert.alert('Error', 'No se pudo guardar la tarea. Inténtalo de nuevo.');
+      Alert.alert('Error', 'No se pudo guardar la tarea');
     } finally {
       setLoading(false);
     }
@@ -108,18 +132,13 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setDeadline(selectedDate);
-      // Después de seleccionar fecha, mostrar selector de hora
-      if (Platform.OS === 'android') {
-        setShowTimePicker(true);
-      }
+      if (Platform.OS === 'android') setShowTimePicker(true);
     }
   };
 
   const onTimeChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowTimePicker(false);
-    if (selectedDate) {
-      setDeadline(selectedDate);
-    }
+    if (selectedDate) setDeadline(selectedDate);
   };
 
   const formatDate = (date: Date): string => {
@@ -138,17 +157,17 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
       style={styles.container}
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled">
-      {/* Header */}
+
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Nueva Tarea</Text>
+        <Text style={styles.headerTitle}>
+          {taskToEdit ? 'Editar Tarea' : 'Nueva Tarea'}
+        </Text>
         <Text style={styles.headerSubtitle}>
           Completa los datos para añadir una tarea a tu agenda
         </Text>
       </View>
 
-      {/* Formulario */}
       <View style={styles.form}>
-        {/* Título */}
         <CustomInput
           label="Título"
           placeholder="¿Qué necesitas hacer?"
@@ -157,7 +176,6 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
           error={errors.title}
         />
 
-        {/* Descripción */}
         <CustomInput
           label="Descripción (opcional)"
           placeholder="Añade detalles sobre esta tarea..."
@@ -167,25 +185,26 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
           numberOfLines={4}
         />
 
-        {/* Selector de Prioridad */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Prioridad</Text>
           <View style={styles.priorityContainer}>
             {priorities.map(p => {
               const isSelected = priority === p;
               const color = getPriorityColor(p);
+
               return (
                 <TouchableOpacity
                   key={p}
                   style={[
                     styles.priorityPill,
                     {
-                      backgroundColor: isSelected ? color + '20' : Colors.surface,
+                      backgroundColor: isSelected
+                        ? color + '20'
+                        : Colors.surface,
                       borderColor: isSelected ? color : Colors.border,
                     },
                   ]}
-                  onPress={() => setPriority(p)}
-                  activeOpacity={0.7}>
+                  onPress={() => setPriority(p)}>
                   <View
                     style={[styles.priorityDot, {backgroundColor: color}]}
                   />
@@ -202,13 +221,12 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
           </View>
         </View>
 
-        {/* Selector de Fecha/Hora (Deadline) */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>Plazo (Deadline)</Text>
+
           <TouchableOpacity
             style={styles.dateButton}
-            onPress={() => setShowDatePicker(true)}
-            activeOpacity={0.7}>
+            onPress={() => setShowDatePicker(true)}>
             <Text style={styles.dateIcon}>📅</Text>
             <Text style={styles.dateText}>{formatDate(deadline)}</Text>
           </TouchableOpacity>
@@ -233,9 +251,8 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
           )}
         </View>
 
-        {/* Botón Guardar */}
         <CustomButton
-          title="Guardar Tarea"
+          title={taskToEdit ? 'Actualizar Tarea' : 'Guardar Tarea'}
           onPress={handleSave}
           loading={loading}
           size="large"
@@ -278,7 +295,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.textSecondary,
     marginBottom: 10,
-    letterSpacing: 0.3,
   },
   priorityContainer: {
     flexDirection: 'row',
@@ -288,10 +304,9 @@ const styles = StyleSheet.create({
   priorityPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
+    padding: 10,
     borderWidth: 1.5,
+    borderRadius: 10,
   },
   priorityDot: {
     width: 8,
@@ -310,8 +325,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: Colors.border,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    padding: 14,
   },
   dateIcon: {
     fontSize: 18,
@@ -320,7 +334,6 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 15,
     color: Colors.text,
-    fontWeight: '500',
   },
   saveButton: {
     marginTop: 12,
