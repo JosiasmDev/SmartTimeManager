@@ -77,6 +77,14 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const resetForm = () => {
+    setTitle('');
+    setDescription('');
+    setPriority(Priority.MEDIUM);
+    setDeadline(new Date());
+    setErrors({});
+  };
+
   /**
    * Guardar o actualizar tarea
    */
@@ -117,7 +125,13 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
         });
 
         Alert.alert('✅ Éxito', 'Tarea guardada correctamente', [
-          {text: 'OK', onPress: () => navigation.navigate('Home')},
+          {
+            text: 'OK',
+            onPress: () => {
+              resetForm();
+              navigation.navigate('Home');
+            },
+          },
         ]);
       }
     } catch (error) {

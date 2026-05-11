@@ -5,7 +5,7 @@
 
 import firestore from '@react-native-firebase/firestore';
 import {FIREBASE_COLLECTIONS} from './firebase';
-import {Task, TaskData} from '../utils/priorities';
+import {Task, TaskData, TaskStatus} from '../utils/priorities';
 import {logEvent} from './analyticsService';
 
 /**
@@ -143,4 +143,33 @@ export async function deleteTask(
     .delete();
 
   void logEvent('task_deleted', {userId, taskId});
+}
+
+/**
+ * Actualizar el estado de una tarea
+ *
+ * @param userId - UID del usuario logueado
+ * @param taskId - ID del documento de la tarea
+ * @param newStatus - Nuevo estado de la tarea
+ */
+export async function updateTaskStatus(
+  userId: string,
+  taskId: string,
+  newStatus: TaskStatus,
+): Promise<void> {
+  await firestore()
+    .collection(FIREBASE_COLLECTIONS.USERS)
+    .doc(userId)
+    .collection(FIREBASE_COLLECTIONS.TASKS)
+    .doc(taskId)
+    .update({
+      status: newStatus,
+      updatedAt: firestore.FieldValue.serverTimestamp(),
+    });
+
+  void logEvent('task_status_updated', {
+    userId,
+    taskId,
+    status: newStatus,
+  });
 }

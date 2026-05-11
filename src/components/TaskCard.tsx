@@ -12,16 +12,21 @@ import {
   getPriorityLabel,
   getStatusLabel,
   getStatusColor,
+  TaskStatus,
 } from '../utils/priorities';
+import {Swipeable} from 'react-native-gesture-handler';
 
 interface TaskCardProps {
   task: Task;
   onPress?: (task: Task) => void;
+  onComplete?: (task: Task) => void;
+  onDelete?: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({task, onPress}) => {
+const TaskCard: React.FC<TaskCardProps> = ({task, onPress, onComplete, onDelete}) => {
   const priorityColor = getPriorityColor(task.priority);
   const statusColor = getStatusColor(task.status);
+  const isCompleted = task.status === TaskStatus.COMPLETED;
 
   const formatDate = (date: Date): string => {
     const d = new Date(date);
@@ -34,28 +39,50 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onPress}) => {
     });
   };
 
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => onPress?.(task)}
-      activeOpacity={0.7}>
-      {/* Franja de prioridad lateral */}
-      <View
-        style={[styles.priorityStrip, {backgroundColor: priorityColor}]}
-      />
+  const renderRightActions = () => {
+    return (
+      <TouchableOpacity
+        style={styles.deleteAction}
+        onPress={() => onDelete?.(task)}
+        activeOpacity={0.8}>
+        <Text style={styles.deleteText}>Borrar</Text>
+      </TouchableOpacity>
+    );
+  };
 
-      <View style={styles.content}>
-        {/* Header: título + badge de prioridad */}
-        <View style={styles.header}>
-          <Text style={styles.title} numberOfLines={1}>
-            {task.title}
-          </Text>
-          <View
-            style={[styles.priorityBadge, {backgroundColor: priorityColor + '20'}]}>
-            <Text style={[styles.priorityText, {color: priorityColor}]}>
-              {getPriorityLabel(task.priority)}
-            </Text>
+  return (
+    <Swipeable renderRightActions={renderRightActions}>
+      <TouchableOpacity
+        style={[styles.card, isCompleted && styles.cardCompleted]}
+        onPress={() => onPress?.(task)}
+        activeOpacity={0.7}>
+        {/* Franja de prioridad lateral */}
+        <View
+          style={[styles.priorityStrip, {backgroundColor: isCompleted ? Colors.textMuted : priorityColor}]}
+        />
+
+        {/* Botón de completar */}
+        <TouchableOpacity
+          style={styles.completeButton}
+          onPress={() => onComplete?.(task)}
+          activeOpacity={0.6}>
+          <View style={[styles.checkCircle, isCompleted && styles.checkCircleCompleted]}>
+            {isCompleted && <Text style={styles.checkIcon}>✓</Text>}
           </View>
+        </TouchableOpacity>
+
+        <View style={styles.content}>
+          {/* Header: título + badge de prioridad */}
+          <View style={styles.header}>
+            <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={1}>
+              {task.title}
+            </Text>
+            <View
+              style={[styles.priorityBadge, {backgroundColor: priorityColor + '20'}]}>
+              <Text style={[styles.priorityText, {color: priorityColor}]}>
+                {getPriorityLabel(task.priority)}
+              </Text>
+            </View>
         </View>
 
         {/* Descripción */}
@@ -76,7 +103,8 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onPress}) => {
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Swipeable>
   );
 };
 
@@ -95,8 +123,34 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 6,
   },
+  cardCompleted: {
+    opacity: 0.6,
+  },
   priorityStrip: {
     width: 5,
+  },
+  completeButton: {
+    paddingLeft: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: Colors.textSecondary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkCircleCompleted: {
+    backgroundColor: Colors.success,
+    borderColor: Colors.success,
+  },
+  checkIcon: {
+    color: Colors.background,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   content: {
     flex: 1,
@@ -114,6 +168,10 @@ const styles = StyleSheet.create({
     color: Colors.text,
     flex: 1,
     marginRight: 8,
+  },
+  titleCompleted: {
+    textDecorationLine: 'line-through',
+    color: Colors.textSecondary,
   },
   priorityBadge: {
     paddingHorizontal: 10,
@@ -149,6 +207,20 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 11,
     fontWeight: '600',
+  },
+  deleteAction: {
+    backgroundColor: Colors.error,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    marginBottom: 12,
+    borderRadius: 14,
+    marginLeft: 10,
+  },
+  deleteText: {
+    color: Colors.text,
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
 

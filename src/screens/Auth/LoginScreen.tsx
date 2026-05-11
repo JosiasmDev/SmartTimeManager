@@ -1,10 +1,10 @@
 /**
- * LoginScreen - Pantalla de inicio de sesión (solo UI)
+ * LoginScreen - Pantalla de inicio de sesión
  * Formulario con email y contraseña, enlace a registro
+ * Conectado con AuthContext → Firebase Auth
  */
 
-
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -21,29 +21,50 @@ import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import FullScreenLoader from '../../components/FullScreenLoader';
+import { useAuth } from '../../store/AuthContext';
 
 interface LoginScreenProps {
   navigation: any;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    setIsLoading(true);
-
+    setError('');
+    if (!email.trim() || !password) {
+      setError('Por favor, introduce tu email y contraseña.');
+      return;
+    }
     try {
-      await auth().signInWithEmailAndPassword(email, password);
-    } catch (error) {
-      console.log('Error login:', error);
+      setLoading(true);
+      await signIn(email.trim(), password);
+      // AuthContext redirige automáticamente al detectar usuario logueado
+    } catch (e: any) {
+      const code = e?.code ?? '';
+      if (
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/invalid-credential'
+      ) {
+        setError('Email o contraseña incorrectos.');
+      } else if (code === 'auth/invalid-email') {
+        setError('El formato del email no es válido.');
+      } else if (code === 'auth/too-many-requests') {
+        setError('Demasiados intentos. Espera unos minutos.');
+      } else {
+        setError('Error al iniciar sesión. Inténtalo de nuevo.');
+      }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
+  if (loading) {
     return <FullScreenLoader />;
   }
 
@@ -84,8 +105,12 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             secureTextEntry
           />
 
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : null}
+
           <CustomButton
-            title={isLoading ? "Entrando..." : "Entrar"}
+            title={loading ? 'Entrando...' : 'Entrar'}
             onPress={handleLogin}
             size="large"
             style={styles.loginButton}
@@ -145,6 +170,13 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
+  },
+  errorText: {
+    color: Colors.error,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 8,
   },
   loginButton: {
     marginTop: 8,
