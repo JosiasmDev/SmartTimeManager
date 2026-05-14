@@ -12,6 +12,7 @@ import { AuthProvider } from './store/AuthContext';
 import AppNavigator from './navigation/AppNavigator';
 import './services/firebaseConfig';
 import Toast from 'react-native-toast-message';
+import OfflineBanner from './components/OfflineBanner';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const App: React.FC = () => {
           <AppNavigator />
         </AuthProvider>
       </SafeAreaProvider>
+      <OfflineBanner />
       <Toast />
     </GestureHandlerRootView>
   );
