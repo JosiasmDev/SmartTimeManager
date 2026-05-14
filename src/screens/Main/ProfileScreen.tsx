@@ -9,6 +9,7 @@ import auth from '@react-native-firebase/auth';
 import Colors from '../../utils/colors';
 import CustomButton from '../../components/CustomButton';
 import {useAuth} from '../../store/AuthContext';
+import {showError} from '../../utils/errorHandler';
 
 const ProfileScreen: React.FC = () => {
   const email = auth().currentUser?.email ?? 'Sin email';
@@ -27,7 +28,7 @@ const ProfileScreen: React.FC = () => {
             try {
               await signOut();
             } catch {
-              Alert.alert('Error', 'No se pudo cerrar sesión');
+              showError('No se pudo cerrar sesión');
             }
           },
         },

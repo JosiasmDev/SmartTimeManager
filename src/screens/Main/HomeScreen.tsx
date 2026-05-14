@@ -20,6 +20,7 @@ import {subscribeToTasks, updateTaskStatus, deleteTask} from '../../services/tas
 import {Task, sortTasks, Priority, TaskStatus} from '../../utils/priorities';
 import TaskCard from '../../components/TaskCard';
 import {useNavigation} from '@react-navigation/native';
+import {showError} from '../../utils/errorHandler';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 type RootStackParamList = {
@@ -111,7 +112,7 @@ const HomeScreen: React.FC = () => {
       await updateTaskStatus(user.uid, task.id, newStatus);
     } catch (error) {
       console.error('Error updating task status:', error);
-      Alert.alert('Error', 'No se pudo actualizar la tarea');
+      showError('No se pudo actualizar la tarea');
     }
   };
 
@@ -130,7 +131,7 @@ const HomeScreen: React.FC = () => {
               await deleteTask(user.uid, task.id);
             } catch (error) {
               console.error('Error deleting task:', error);
-              Alert.alert('Error', 'No se pudo borrar la tarea');
+              showError('No se pudo borrar la tarea');
             }
           },
         },

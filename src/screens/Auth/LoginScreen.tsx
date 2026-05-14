@@ -22,6 +22,7 @@ import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import FullScreenLoader from '../../components/FullScreenLoader';
 import { useAuth } from '../../store/AuthContext';
+import { showError } from '../../utils/errorHandler';
 
 interface LoginScreenProps {
   navigation: any;
@@ -32,12 +33,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleLogin = async () => {
-    setError('');
     if (!email.trim() || !password) {
-      setError('Por favor, introduce tu email y contraseña.');
+      showError('Por favor, introduce tu email y contraseña.');
       return;
     }
     try {
@@ -46,19 +45,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       // AuthContext redirige automáticamente al detectar usuario logueado
     } catch (e: any) {
       const code = e?.code ?? '';
-      if (
-        code === 'auth/user-not-found' ||
-        code === 'auth/wrong-password' ||
-        code === 'auth/invalid-credential'
-      ) {
-        setError('Email o contraseña incorrectos.');
-      } else if (code === 'auth/invalid-email') {
-        setError('El formato del email no es válido.');
-      } else if (code === 'auth/too-many-requests') {
-        setError('Demasiados intentos. Espera unos minutos.');
-      } else {
-        setError('Error al iniciar sesión. Inténtalo de nuevo.');
-      }
+      showError('Error al iniciar sesión. Inténtalo de nuevo.', code);
     } finally {
       setLoading(false);
     }
@@ -104,10 +91,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             onChangeText={setPassword}
             secureTextEntry
           />
-
-          {error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : null}
 
           <CustomButton
             title={loading ? 'Entrando...' : 'Entrar'}
@@ -170,13 +153,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
-  },
-  errorText: {
-    color: Colors.error,
-    fontSize: 13,
-    textAlign: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 8,
   },
   loginButton: {
     marginTop: 8,

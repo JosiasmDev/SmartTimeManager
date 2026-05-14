@@ -13,12 +13,12 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import { useAuth } from '../../store/AuthContext';
+import { showError } from '../../utils/errorHandler';
 
 interface RegisterScreenProps {
   navigation: any;
@@ -30,20 +30,18 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleRegister = async () => {
-    setError('');
     if (!name.trim()) {
-      setError('Por favor, introduce tu nombre.');
+      showError('Por favor, introduce tu nombre.');
       return;
     }
     if (!email.trim()) {
-      setError('Por favor, introduce tu email.');
+      showError('Por favor, introduce tu email.');
       return;
     }
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres.');
+      showError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
     try {
@@ -52,15 +50,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
       // AuthContext redirige automáticamente al detectar usuario logueado
     } catch (e: any) {
       const code = e?.code ?? '';
-      if (code === 'auth/email-already-in-use') {
-        setError('Este email ya está registrado. Prueba a iniciar sesión.');
-      } else if (code === 'auth/invalid-email') {
-        setError('El formato del email no es válido.');
-      } else if (code === 'auth/weak-password') {
-        setError('La contraseña es demasiado débil.');
-      } else {
-        setError('Error al registrarse. Inténtalo de nuevo.');
-      }
+      showError('Error al registrarse. Inténtalo de nuevo.', code);
     } finally {
       setLoading(false);
     }
@@ -107,10 +97,6 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
             onChangeText={setPassword}
             secureTextEntry
           />
-
-          {error ? (
-            <Text style={styles.errorText}>{error}</Text>
-          ) : null}
 
           <CustomButton
             title={loading ? 'Creando cuenta...' : 'Registrarme'}
@@ -161,13 +147,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
-  },
-  errorText: {
-    color: Colors.error,
-    fontSize: 13,
-    textAlign: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 8,
   },
   registerButton: {
     marginTop: 8,

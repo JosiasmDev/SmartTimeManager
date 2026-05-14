@@ -11,7 +11,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   Platform,
 } from 'react-native';
 import DateTimePicker, {
@@ -31,6 +30,7 @@ import {
   Task,
 } from '../../utils/priorities';
 import {useRoute} from '@react-navigation/native';
+import {showError, showSuccess} from '../../utils/errorHandler';
 
 interface CreateTaskScreenProps {
   navigation: any;
@@ -92,7 +92,7 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
     if (!validate()) return;
 
     if (!user?.uid) {
-      Alert.alert('Error', 'Debes iniciar sesión para guardar tareas');
+      showError('Debes iniciar sesión para guardar tareas');
       return;
     }
 
@@ -109,9 +109,8 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
           updatedAt: new Date(),
         });
 
-        Alert.alert('✅ Éxito', 'Tarea actualizada correctamente', [
-          {text: 'OK', onPress: () => navigation.navigate('Home')},
-        ]);
+        showSuccess('Tarea actualizada correctamente');
+        navigation.navigate('Home');
       } else {
         // ➕ CREAR
         await addTask(user.uid, {
@@ -124,19 +123,13 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({navigation}) => {
           updatedAt: new Date(),
         });
 
-        Alert.alert('✅ Éxito', 'Tarea guardada correctamente', [
-          {
-            text: 'OK',
-            onPress: () => {
-              resetForm();
-              navigation.navigate('Home');
-            },
-          },
-        ]);
+        showSuccess('Tarea guardada correctamente');
+        resetForm();
+        navigation.navigate('Home');
       }
     } catch (error) {
       console.error('Error guardando tarea:', error);
-      Alert.alert('Error', 'No se pudo guardar la tarea');
+      showError('No se pudo guardar la tarea');
     } finally {
       setLoading(false);
     }
