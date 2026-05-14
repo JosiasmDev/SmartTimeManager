@@ -4,9 +4,9 @@
  */
 
 import firestore from '@react-native-firebase/firestore';
-import {FIREBASE_COLLECTIONS} from './firebase';
-import {Task, TaskData, TaskStatus} from '../utils/priorities';
-import {logEvent} from './analyticsService';
+import { FIREBASE_COLLECTIONS } from './firebase';
+import { Task, TaskData, TaskStatus } from '../utils/priorities';
+import { logEvent } from './analyticsService';
 
 /**
  * ACTUALIZAR DETALLES DE UNA TAREA (CORREGIDO)
@@ -142,7 +142,7 @@ export async function deleteTask(
     .doc(taskId)
     .delete();
 
-  void logEvent('task_deleted', {userId, taskId});
+  void logEvent('task_deleted', { userId, taskId });
 }
 
 /**

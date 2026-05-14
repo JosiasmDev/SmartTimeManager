@@ -4,7 +4,7 @@
  * Muestra barra de estado con colores de prioridad en la parte superior
  */
 
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,21 +15,26 @@ import {
   Alert,
 } from 'react-native';
 import Colors from '../../utils/colors';
-import {useAuth} from '../../store/AuthContext';
-import {subscribeToTasks, updateTaskStatus, deleteTask} from '../../services/taskService';
-import {Task, sortTasks, Priority, TaskStatus} from '../../utils/priorities';
+import { useAuth } from '../../store/AuthContext';
+import {
+  subscribeToTasks,
+  updateTaskStatus,
+  deleteTask,
+} from '../../services/taskService';
+import { Task, sortTasks, Priority, TaskStatus } from '../../utils/priorities';
 import TaskCard from '../../components/TaskCard';
-import {useNavigation} from '@react-navigation/native';
-import {showError} from '../../utils/errorHandler';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import EmptyTaskState from '../../components/EmptyTaskState';
+import { useNavigation } from '@react-navigation/native';
+import { showError } from '../../utils/errorHandler';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
-  CreateTask: {taskToEdit?: Task};
+  CreateTask: { taskToEdit?: Task };
   Home: undefined;
 };
 
 const HomeScreen: React.FC = () => {
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -83,9 +88,7 @@ const HomeScreen: React.FC = () => {
   const getStatusMessage = (): string => {
     if (tasks.length === 0) return '🌟 Sin tareas pendientes';
 
-    const pending = tasks.filter(
-      t => t.status !== TaskStatus.COMPLETED,
-    ).length;
+    const pending = tasks.filter(t => t.status !== TaskStatus.COMPLETED).length;
 
     const completed = tasks.filter(
       t => t.status === TaskStatus.COMPLETED,
@@ -99,7 +102,9 @@ const HomeScreen: React.FC = () => {
 
     if (hasUrgent) return '🔴 Tienes tareas urgentes';
 
-    return `📋 ${pending} pendiente${pending > 1 ? 's' : ''} · ${completed} completada${completed > 1 ? 's' : ''}`;
+    return `📋 ${pending} pendiente${
+      pending > 1 ? 's' : ''
+    } · ${completed} completada${completed > 1 ? 's' : ''}`;
   };
 
   const handleCompleteTask = async (task: Task) => {
@@ -121,7 +126,7 @@ const HomeScreen: React.FC = () => {
       'Borrar tarea',
       `¿Estás seguro de que quieres borrar "${task.title}"?`,
       [
-        {text: 'Cancelar', style: 'cancel'},
+        { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Borrar',
           style: 'destructive',
@@ -149,7 +154,9 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <View style={[styles.statusBar, {backgroundColor: getStatusBarColor()}]}>
+      <View
+        style={[styles.statusBar, { backgroundColor: getStatusBarColor() }]}
+      >
         <Text style={styles.statusText}>{getStatusMessage()}</Text>
       </View>
 
@@ -165,18 +172,12 @@ const HomeScreen: React.FC = () => {
       </View>
 
       {tasks.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyEmoji}>📝</Text>
-          <Text style={styles.emptyTitle}>No hay tareas todavía</Text>
-          <Text style={styles.emptySubtitle}>
-            Toca "Nueva Tarea" para añadir tu primera tarea
-          </Text>
-        </View>
+        <EmptyTaskState />
       ) : (
         <FlatList
           data={tasks}
           keyExtractor={item => item.id}
-          renderItem={({item}) => (
+          renderItem={({ item }) => (
             <TaskCard
               task={item}
               onPress={handleTaskPress}
@@ -201,7 +202,7 @@ const HomeScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.background},
+  container: { flex: 1, backgroundColor: Colors.background },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -240,22 +241,6 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 20,
     paddingBottom: 20,
-  },
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyEmoji: {fontSize: 64, marginBottom: 16},
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: Colors.text,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    color: Colors.textSecondary,
-    textAlign: 'center',
   },
 });
 

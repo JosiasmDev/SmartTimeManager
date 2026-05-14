@@ -5,10 +5,10 @@
  */
 
 import React from 'react';
-import {StatusBar} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {AuthProvider} from './store/AuthContext';
+import { StatusBar } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AuthProvider } from './store/AuthContext';
 import AppNavigator from './navigation/AppNavigator';
 import './services/firebaseConfig';
 import Toast from 'react-native-toast-message';

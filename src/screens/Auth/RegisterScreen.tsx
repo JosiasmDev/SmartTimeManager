@@ -59,16 +59,16 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Crear Cuenta</Text>
-          <Text style={styles.subtitle}>
-            Empieza a organizar tu tiempo hoy
-          </Text>
+          <Text style={styles.subtitle}>Empieza a organizar tu tiempo hoy</Text>
         </View>
 
         {/* Formulario */}

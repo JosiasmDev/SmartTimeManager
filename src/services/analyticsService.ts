@@ -6,9 +6,7 @@
 
 import analytics from '@react-native-firebase/analytics';
 
-export async function setAnalyticsUserId(
-  userId: string | null,
-): Promise<void> {
+export async function setAnalyticsUserId(userId: string | null): Promise<void> {
   try {
     await analytics().setUserId(userId);
   } catch (error) {
@@ -18,7 +16,7 @@ export async function setAnalyticsUserId(
 
 export async function logScreenView(screenName: string): Promise<void> {
   try {
-    await analytics().logScreenView({screen_name: screenName});
+    await analytics().logScreenView({ screen_name: screenName });
   } catch (error) {
     console.warn('Analytics logScreenView error:', error);
   }
@@ -37,7 +35,7 @@ export async function logEvent(
 
 export async function logLogin(method: 'email'): Promise<void> {
   try {
-    await analytics().logLogin({method});
+    await analytics().logLogin({ method });
   } catch (error) {
     console.warn('Analytics logLogin error:', error);
   }
@@ -45,9 +43,8 @@ export async function logLogin(method: 'email'): Promise<void> {
 
 export async function logSignUp(method: 'email'): Promise<void> {
   try {
-    await analytics().logSignUp({method});
+    await analytics().logSignUp({ method });
   } catch (error) {
     console.warn('Analytics logSignUp error:', error);
   }
 }
-

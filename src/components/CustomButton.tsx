@@ -40,9 +40,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   const getButtonStyle = (): ViewStyle => {
     switch (variant) {
       case 'primary':
-        return {backgroundColor: Colors.primary};
+        return { backgroundColor: Colors.primary };
       case 'secondary':
-        return {backgroundColor: Colors.surfaceLight};
+        return { backgroundColor: Colors.surfaceLight };
       case 'outline':
         return {
           backgroundColor: 'transparent',
@@ -50,35 +50,35 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           borderColor: Colors.primary,
         };
       case 'danger':
-        return {backgroundColor: Colors.error};
+        return { backgroundColor: Colors.error };
       default:
-        return {backgroundColor: Colors.primary};
+        return { backgroundColor: Colors.primary };
     }
   };
 
   const getSizeStyle = (): ViewStyle => {
     switch (size) {
       case 'small':
-        return {paddingVertical: 8, paddingHorizontal: 16};
+        return { paddingVertical: 8, paddingHorizontal: 16 };
       case 'medium':
-        return {paddingVertical: 14, paddingHorizontal: 24};
+        return { paddingVertical: 14, paddingHorizontal: 24 };
       case 'large':
-        return {paddingVertical: 18, paddingHorizontal: 32};
+        return { paddingVertical: 18, paddingHorizontal: 32 };
       default:
-        return {paddingVertical: 14, paddingHorizontal: 24};
+        return { paddingVertical: 14, paddingHorizontal: 24 };
     }
   };
 
   const getTextSize = (): TextStyle => {
     switch (size) {
       case 'small':
-        return {fontSize: 13};
+        return { fontSize: 13 };
       case 'medium':
-        return {fontSize: 16};
+        return { fontSize: 16 };
       case 'large':
-        return {fontSize: 18};
+        return { fontSize: 18 };
       default:
-        return {fontSize: 16};
+        return { fontSize: 16 };
     }
   };
 
@@ -93,7 +93,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       ]}
       onPress={onPress}
       disabled={isDisabled}
-      activeOpacity={0.7}>
+      activeOpacity={0.7}
+    >
       {loading ? (
         <ActivityIndicator
           color={variant === 'outline' ? Colors.primary : Colors.text}
@@ -104,9 +105,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           style={[
             styles.text,
             getTextSize(),
-            variant === 'outline' && {color: Colors.primary},
+            variant === 'outline' && { color: Colors.primary },
             textStyle,
-          ]}>
+          ]}
+        >
           {title}
         </Text>
       )}

@@ -4,8 +4,8 @@
  * Usa onAuthStateChanged para reaccionar automáticamente a cambios de sesión
  */
 
-import React, {createContext, useContext, useEffect, useState} from 'react';
-import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
 import {
   logLogin,
   logSignUp,
@@ -42,7 +42,7 @@ export function useAuth(): AuthContextType {
 /**
  * AuthProvider - Componente que envuelve la app y provee el estado de auth
  */
-export function AuthProvider({children}: {children: React.ReactNode}) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<FirebaseAuthTypes.User | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -81,7 +81,8 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
         signIn: handleSignIn,
         signUp: handleSignUp,
         signOut: handleSignOut,
-      }}>
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

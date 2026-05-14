@@ -5,13 +5,13 @@
 
 export const Colors = {
   // Priority colors (sistema de colores dinámico)
-  urgent: '#FF4757',       // Rojo - tareas urgentes
-  high: '#FF6B35',         // Naranja - prioridad alta
-  medium: '#FFA502',       // Amarillo/Naranja - prioridad media
-  low: '#2ED573',          // Verde - prioridad baja
-  inProgress: '#1E90FF',   // Azul - en progreso
-  completed: '#2ED573',    // Verde - completada
-  rest: '#A29BFE',         // Lavanda - descanso
+  urgent: '#FF4757', // Rojo - tareas urgentes
+  high: '#FF6B35', // Naranja - prioridad alta
+  medium: '#FFA502', // Amarillo/Naranja - prioridad media
+  low: '#2ED573', // Verde - prioridad baja
+  inProgress: '#1E90FF', // Azul - en progreso
+  completed: '#2ED573', // Verde - completada
+  rest: '#A29BFE', // Lavanda - descanso
 
   // UI Theme (dark mode)
   background: '#0F0F1A',

@@ -3,7 +3,7 @@ import Toast from 'react-native-toast-message';
 /**
  * Muestra un mensaje de error tipo Toast, opcionalmente traduciendo
  * códigos de error comunes de Firebase.
- * 
+ *
  * @param defaultMessage Mensaje a mostrar si no hay código o no se reconoce
  * @param firebaseCode Código de error devuelto por Firebase Auth/Firestore
  */
@@ -45,7 +45,7 @@ export const showError = (defaultMessage: string, firebaseCode?: string) => {
 
 /**
  * Muestra un mensaje de éxito tipo Toast.
- * 
+ *
  * @param message Mensaje de éxito
  */
 export const showSuccess = (message: string) => {

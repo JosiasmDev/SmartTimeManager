@@ -4,23 +4,23 @@
  */
 
 import React from 'react';
-import {View, Text, StyleSheet, Alert} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import auth from '@react-native-firebase/auth';
 import Colors from '../../utils/colors';
 import CustomButton from '../../components/CustomButton';
-import {useAuth} from '../../store/AuthContext';
-import {showError} from '../../utils/errorHandler';
+import { useAuth } from '../../store/AuthContext';
+import { showError } from '../../utils/errorHandler';
 
 const ProfileScreen: React.FC = () => {
   const email = auth().currentUser?.email ?? 'Sin email';
-  const {user, signOut} = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleSignOut = () => {
     Alert.alert(
       'Cerrar Sesión',
       '¿Estás seguro de que quieres cerrar sesión?',
       [
-        {text: 'Cancelar', style: 'cancel'},
+        { text: 'Cancelar', style: 'cancel' },
         {
           text: 'Cerrar Sesión',
           style: 'destructive',

@@ -8,20 +8,14 @@ import auth from '@react-native-firebase/auth';
 /**
  * Registrar un nuevo usuario con email y contraseña
  */
-export async function signUp(
-  email: string,
-  password: string,
-): Promise<void> {
+export async function signUp(email: string, password: string): Promise<void> {
   await auth().createUserWithEmailAndPassword(email, password);
 }
 
 /**
  * Iniciar sesión con email y contraseña
  */
-export async function signIn(
-  email: string,
-  password: string,
-): Promise<void> {
+export async function signIn(email: string, password: string): Promise<void> {
   await auth().signInWithEmailAndPassword(email, password);
 }
 

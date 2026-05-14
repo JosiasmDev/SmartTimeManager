@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {Text, StyleSheet} from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Text, StyleSheet } from 'react-native';
 import HomeScreen from '../screens/Main/HomeScreen';
 import CreateTaskScreen from '../screens/Main/CreateTaskScreen';
 import ProfileScreen from '../screens/Main/ProfileScreen';
@@ -23,13 +23,14 @@ const MainTabNavigator: React.FC = () => {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textMuted,
         tabBarLabelStyle: styles.tabLabel,
-      }}>
+      }}
+    >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarLabel: 'Inicio',
-          tabBarIcon: ({focused}) => (
+          tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>
               🏠
             </Text>
@@ -41,7 +42,7 @@ const MainTabNavigator: React.FC = () => {
         component={CreateTaskScreen}
         options={{
           tabBarLabel: 'Nueva Tarea',
-          tabBarIcon: ({focused}) => (
+          tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>
               ➕
             </Text>
@@ -53,7 +54,7 @@ const MainTabNavigator: React.FC = () => {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Perfil',
-          tabBarIcon: ({focused}) => (
+          tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && styles.tabIconActive]}>
               👤
             </Text>

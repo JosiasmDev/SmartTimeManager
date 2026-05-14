@@ -3,7 +3,7 @@
  * Soporta etiqueta, placeholder, error, multiline y icono
  */
 
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,

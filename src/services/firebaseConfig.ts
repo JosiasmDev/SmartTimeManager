@@ -10,4 +10,3 @@
 import firebaseApp from '@react-native-firebase/app';
 
 export default firebaseApp;
-

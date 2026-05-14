@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Colors from '../utils/colors';
 import {
   Task,
@@ -14,7 +14,7 @@ import {
   getStatusColor,
   TaskStatus,
 } from '../utils/priorities';
-import {Swipeable} from 'react-native-gesture-handler';
+import { Swipeable } from 'react-native-gesture-handler';
 
 interface TaskCardProps {
   task: Task;
@@ -23,7 +23,12 @@ interface TaskCardProps {
   onDelete?: (task: Task) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({task, onPress, onComplete, onDelete}) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  onPress,
+  onComplete,
+  onDelete,
+}) => {
   const priorityColor = getPriorityColor(task.priority);
   const statusColor = getStatusColor(task.status);
   const isCompleted = task.status === TaskStatus.COMPLETED;
@@ -44,7 +49,8 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onPress, onComplete, onDelete}
       <TouchableOpacity
         style={styles.deleteAction}
         onPress={() => onDelete?.(task)}
-        activeOpacity={0.8}>
+        activeOpacity={0.8}
+      >
         <Text style={styles.deleteText}>Borrar</Text>
       </TouchableOpacity>
     );
@@ -55,18 +61,28 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onPress, onComplete, onDelete}
       <TouchableOpacity
         style={[styles.card, isCompleted && styles.cardCompleted]}
         onPress={() => onPress?.(task)}
-        activeOpacity={0.7}>
+        activeOpacity={0.7}
+      >
         {/* Franja de prioridad lateral */}
         <View
-          style={[styles.priorityStrip, {backgroundColor: isCompleted ? Colors.textMuted : priorityColor}]}
+          style={[
+            styles.priorityStrip,
+            { backgroundColor: isCompleted ? Colors.textMuted : priorityColor },
+          ]}
         />
 
         {/* Botón de completar */}
         <TouchableOpacity
           style={styles.completeButton}
           onPress={() => onComplete?.(task)}
-          activeOpacity={0.6}>
-          <View style={[styles.checkCircle, isCompleted && styles.checkCircleCompleted]}>
+          activeOpacity={0.6}
+        >
+          <View
+            style={[
+              styles.checkCircle,
+              isCompleted && styles.checkCircleCompleted,
+            ]}
+          >
             {isCompleted && <Text style={styles.checkIcon}>✓</Text>}
           </View>
         </TouchableOpacity>
@@ -74,35 +90,46 @@ const TaskCard: React.FC<TaskCardProps> = ({task, onPress, onComplete, onDelete}
         <View style={styles.content}>
           {/* Header: título + badge de prioridad */}
           <View style={styles.header}>
-            <Text style={[styles.title, isCompleted && styles.titleCompleted]} numberOfLines={1}>
+            <Text
+              style={[styles.title, isCompleted && styles.titleCompleted]}
+              numberOfLines={1}
+            >
               {task.title}
             </Text>
             <View
-              style={[styles.priorityBadge, {backgroundColor: priorityColor + '20'}]}>
-              <Text style={[styles.priorityText, {color: priorityColor}]}>
+              style={[
+                styles.priorityBadge,
+                { backgroundColor: priorityColor + '20' },
+              ]}
+            >
+              <Text style={[styles.priorityText, { color: priorityColor }]}>
                 {getPriorityLabel(task.priority)}
               </Text>
             </View>
-        </View>
+          </View>
 
-        {/* Descripción */}
-        {task.description ? (
-          <Text style={styles.description} numberOfLines={2}>
-            {task.description}
-          </Text>
-        ) : null}
-
-        {/* Footer: fecha + estado */}
-        <View style={styles.footer}>
-          <Text style={styles.deadline}>📅 {formatDate(task.deadline)}</Text>
-          <View
-            style={[styles.statusBadge, {backgroundColor: statusColor + '20'}]}>
-            <Text style={[styles.statusText, {color: statusColor}]}>
-              {getStatusLabel(task.status)}
+          {/* Descripción */}
+          {task.description ? (
+            <Text style={styles.description} numberOfLines={2}>
+              {task.description}
             </Text>
+          ) : null}
+
+          {/* Footer: fecha + estado */}
+          <View style={styles.footer}>
+            <Text style={styles.deadline}>📅 {formatDate(task.deadline)}</Text>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: statusColor + '20' },
+              ]}
+            >
+              <Text style={[styles.statusText, { color: statusColor }]}>
+                {getStatusLabel(task.status)}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
       </TouchableOpacity>
     </Swipeable>
   );
@@ -119,7 +146,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.cardBorder,
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 6,
   },
