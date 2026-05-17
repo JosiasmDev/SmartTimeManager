@@ -1,0 +1,6 @@
+@echo off
+echo Conectando el puerto del emulador a Metro...
+"C:\Users\Administrador\AppData\Local\Android\Sdk\platform-tools\adb.exe" reverse tcp:8081 tcp:8081
+echo Iniciando el servidor Metro de React Native (sin cache)...
+npm start -- --reset-cache
+pause

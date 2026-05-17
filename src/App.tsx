@@ -22,9 +22,9 @@ const App: React.FC = () => {
         <AuthProvider>
           <AppNavigator />
         </AuthProvider>
+        <OfflineBanner />
+        <Toast />
       </SafeAreaProvider>
-      <OfflineBanner />
-      <Toast />
     </GestureHandlerRootView>
   );
 };

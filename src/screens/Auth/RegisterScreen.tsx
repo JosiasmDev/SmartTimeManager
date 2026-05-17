@@ -17,15 +17,14 @@ import {
 import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import { useAuth } from '../../store/AuthContext';
-import { showError } from '../../utils/errorHandler';
+import { Alert } from 'react-native';
+import { registerUser } from '../../services/authService';
 
 interface RegisterScreenProps {
   navigation: any;
 }
 
 const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
-  const { signUp } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,24 +32,24 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
 
   const handleRegister = async () => {
     if (!name.trim()) {
-      showError('Por favor, introduce tu nombre.');
+      Alert.alert('Error', 'Por favor, introduce tu nombre.');
       return;
     }
     if (!email.trim()) {
-      showError('Por favor, introduce tu email.');
+      Alert.alert('Error', 'Por favor, introduce tu email.');
       return;
     }
     if (password.length < 6) {
-      showError('La contraseña debe tener al menos 6 caracteres.');
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres.');
       return;
     }
     try {
       setLoading(true);
-      await signUp(email.trim(), password);
+      await registerUser(email.trim(), password, name.trim());
       // AuthContext redirige automáticamente al detectar usuario logueado
     } catch (e: any) {
-      const code = e?.code ?? '';
-      showError('Error al registrarse. Inténtalo de nuevo.', code);
+      const msg = e?.message || 'Error al registrarse.';
+      Alert.alert('Error de Registro', msg);
     } finally {
       setLoading(false);
     }

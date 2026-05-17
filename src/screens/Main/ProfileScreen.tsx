@@ -13,7 +13,7 @@ import { showError } from '../../utils/errorHandler';
 
 const ProfileScreen: React.FC = () => {
   const email = auth().currentUser?.email ?? 'Sin email';
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   const handleSignOut = () => {
     Alert.alert(
@@ -26,7 +26,7 @@ const ProfileScreen: React.FC = () => {
           style: 'destructive',
           onPress: async () => {
             try {
-              await signOut();
+              await auth().signOut();
             } catch {
               showError('No se pudo cerrar sesión');
             }

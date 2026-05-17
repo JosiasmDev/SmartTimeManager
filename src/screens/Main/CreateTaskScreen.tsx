@@ -82,7 +82,7 @@ const CreateTaskScreen: React.FC<CreateTaskScreenProps> = ({ navigation }) => {
     try {
       if (taskToEdit) {
         // 🔄 ACTUALIZAR
-        await updateTaskDetails(taskToEdit.id, {
+        await updateTask(user.uid, taskToEdit.id, {
           title: title.trim(),
           description: description.trim(),
           priority,

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "538796199500",
-    "project_id": "smarttimemanager-c7fd6",
-    "storage_bucket": "smarttimemanager-c7fd6.firebasestorage.app"
+    "project_number": "566022399399",
+    "project_id": "smarttimemanager-77e5d",
+    "storage_bucket": "smarttimemanager-77e5d.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:538796199500:android:21b86180ecf362e6b0eee9",
+        "mobilesdk_app_id": "1:566022399399:android:586d5bfa5e4f2bd9b20282",
         "android_client_info": {
           "package_name": "com.organizadorapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAqTOune16bJFgA7nkqkrGVglQ_Vn6pK4o"
+          "current_key": "AIzaSyCDjRocdpvYRLiR5Y61xjngihbYT4Gk9oY"
         }
       ],
       "services": {

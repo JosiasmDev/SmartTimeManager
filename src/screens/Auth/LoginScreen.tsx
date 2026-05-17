@@ -21,31 +21,30 @@ import Colors from '../../utils/colors';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
 import FullScreenLoader from '../../components/FullScreenLoader';
-import { useAuth } from '../../store/AuthContext';
-import { showError } from '../../utils/errorHandler';
+import { Alert } from 'react-native';
+import { loginUser } from '../../services/authService';
 
 interface LoginScreenProps {
   navigation: any;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
-  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
-      showError('Por favor, introduce tu email y contraseña.');
+      Alert.alert('Error', 'Por favor, introduce tu email y contraseña.');
       return;
     }
     try {
       setLoading(true);
-      await signIn(email.trim(), password);
-      // AuthContext redirige automáticamente al detectar usuario logueado
+      await loginUser(email.trim(), password);
+      // El onAuthStateChanged en App.tsx o AuthContext redirigirá
     } catch (e: any) {
-      const code = e?.code ?? '';
-      showError('Error al iniciar sesión. Inténtalo de nuevo.', code);
+      const msg = e?.message || 'Error al iniciar sesión.';
+      Alert.alert('Error de Autenticación', 'Contraseña incorrecta o usuario no válido. ' + msg);
     } finally {
       setLoading(false);
     }

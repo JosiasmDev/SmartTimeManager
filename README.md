@@ -78,6 +78,33 @@ Profesionales, estudiantes y perfiles con alta carga de tareas.
 
 ---
 
+## 🗺️ Flujo de Uso de la Aplicación
+
+El siguiente diagrama muestra el recorrido que realiza un usuario desde que abre la aplicación hasta que gestiona sus tareas:
+
+```mermaid
+stateDiagram-v2
+    [*] --> PantallaLogin: Abre la App (No logueado)
+    PantallaLogin --> PantallaRegistro: Clic en "Crear cuenta"
+    PantallaRegistro --> PantallaLogin: Clic en "Ya tengo cuenta"
+    
+    PantallaLogin --> MainTabs: Login Exitoso
+    PantallaRegistro --> MainTabs: Registro Exitoso
+    
+    state MainTabs {
+        [*] --> Inicio
+        Inicio --> NuevaTarea: Tab "+"
+        NuevaTarea --> Inicio: Guardar Tarea (Automático)
+        
+        Inicio --> Perfil: Tab "Perfil"
+        Perfil --> Inicio: Tab "Inicio"
+    }
+    
+    Perfil --> PantallaLogin: Clic en "Cerrar Sesión"
+```
+
+---
+
 ## 🎨 Sistema de Colores Dinámico
 
 La barra superior de la pantalla de inicio cambia de color según el estado de las tareas:
@@ -90,6 +117,42 @@ La barra superior de la pantalla de inicio cambia de color según el estado de l
 | 🔵 Azul (`#1E90FF`) | Tareas en progreso |
 | 🟢 Verde (`#2ED573`) | Todas las tareas completadas |
 | 🟣 Lavanda (`#A29BFE`) | Sin tareas (descanso) |
+
+---
+
+## ☁️ Configuración de la Arquitectura Backend (Firebase)
+
+Aunque el repositorio ya incluye el archivo de conexión básico, la arquitectura completa de Firebase en este proyecto se estructura así:
+
+1. **Autenticación**: Se utiliza **Firebase Authentication** con el proveedor de Email/Contraseña.
+2. **Base de Datos**: Se utiliza **Cloud Firestore** configurada en modo nativo.
+3. **Reglas de Seguridad**: Para el desarrollo inicial, la base de datos se inicializa en "Modo de Prueba" permitiendo lecturas y escrituras sin validación estricta de tokens de seguridad por 30 días.
+4. **Archivos Nativos**: 
+   - El puente de Android con Firebase se establece a través del archivo `google-services.json` (ubicado en `android/app/`).
+   - El plugin de dependencias de Google Services está inyectado directamente en el archivo `build.gradle` de la app.
+
+### Flujo de Datos y Arquitectura
+
+```mermaid
+graph TD
+    A[📱 App React Native] -->|Login / Registro| B(🔒 Firebase Auth)
+    B -.->|Retorna User UID| A
+    
+    A -->|Crea / Edita Tareas| C[(☁️ Cloud Firestore)]
+    C -.->|Actualiza en Tiempo Real| A
+    
+    subgraph Estructura de Base de Datos
+    C --> D[Colección: users]
+    D --> E[Doc: userId]
+    E --> F[Colección: tasks]
+    F --> G[Doc: taskId]
+    G -.-> H[Título, Prioridad, Estado...]
+    end
+    
+    style A fill:#61DAFB,stroke:#333,stroke-width:2px,color:#000
+    style B fill:#FFCA28,stroke:#333,stroke-width:2px,color:#000
+    style C fill:#FFCA28,stroke:#333,stroke-width:2px,color:#000
+```
 
 ---
 
@@ -106,24 +169,28 @@ La barra superior de la pantalla de inicio cambia de color según el estado de l
 
 ---
 
-## 📋 Requisitos previos
+## 📋 Requisitos previos y Configuración del Entorno
+
+Para que la aplicación compile correctamente en Android, es estrictamente necesario seguir esta configuración. Versiones superiores de Java (como Java 25) romperán la compilación de React Native 0.85 y Gradle 9.
 
 1. **Node.js** >= 22.11.0
-2. **Android Studio** con un emulador configurado (o dispositivo físico)
-3. **Variable de entorno** `ANDROID_HOME` apuntando al Android SDK:
-   ```powershell
-   # Windows (PowerShell)
-   $env:ANDROID_HOME = "C:\Users\TuUsuario\AppData\Local\Android\Sdk"
+2. **Java JDK 17** (Recomendado: Eclipse Adoptium Temurin 17).
+   - No uses Java 25 ni versiones no soportadas por Android.
+3. **Android Studio** con un emulador configurado.
+4. **Android SDK** correctamente enlazado. Debes crear el archivo `android/local.properties` con la ruta de tu SDK:
+   ```properties
+   sdk.dir=C\:\\Users\\TuUsuario\\AppData\\Local\\Android\\Sdk
    ```
-4. **Proyecto Firebase** creado en [Firebase Console](https://console.firebase.google.com):
-   - Habilitar **Authentication** (Email/Password)
-   - Habilitar **Cloud Firestore**
-   - Descargar `google-services.json` → copiar a `android/app/`
-   - *(iOS)* Descargar `GoogleService-Info.plist` → copiar a `ios/OrganizadorApp/`
+5. **Configuración de Java para Gradle**. Debes indicar en `android/gradle.properties` la ruta de Java 17:
+   ```properties
+   org.gradle.java.home=C:/Program Files/Eclipse Adoptium/jdk-17.0.19.10-hotspot
+   ```
 
 ---
 
-## 🚀 Instalación y ejecución
+## 🚀 Instalación y ejecución (Windows)
+
+El proyecto incluye dos scripts automáticos (`.bat`) para facilitar el despliegue local y solucionar problemas comunes de caché y puertos del emulador.
 
 ```bash
 # 1. Clonar el repositorio
@@ -133,18 +200,18 @@ cd SmartTimeManager
 # 2. Instalar dependencias
 npm install
 
-# 3. Configurar ANDROID_HOME (si no está configurado)
-# Windows PowerShell:
-$env:ANDROID_HOME = "C:\Users\TuUsuario\AppData\Local\Android\Sdk"
+# 3. Encender el emulador de Android
+# (Abre Android Studio -> Device Manager -> Inicia tu emulador)
 
-# 4. Iniciar Metro Bundler
-npx react-native start
+# 4. Iniciar el servidor Metro
+# Haz doble clic en el archivo:
+iniciar_servidor.bat
+# (Este script limpia la caché de Metro y enlaza el puerto 8081 del emulador automáticamente)
 
-# 5. En otra terminal, ejecutar en Android
-npx react-native run-android
-
-# Si hay problemas de caché:
-npx react-native start --reset-cache
+# 5. Compilar e instalar la app
+# Haz doble clic en el archivo:
+lanzar_android.bat
+# (Tardará unos minutos la primera vez mientras compila el código nativo)
 ```
 
 ---
